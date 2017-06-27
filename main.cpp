@@ -3,7 +3,9 @@
 #include <fstream>
 #include<vector>
 
+
 using namespace std;
+/*
 
 struct TipoAresta{
     int vertice_destino;
@@ -53,7 +55,7 @@ int dfs(int vertice_atual, int t, int fluxo_atual, int *visualizacao, int tempo,
 
     if(vertice_atual == t) return fluxo_atual;
     visualizacao[vertice_atual] = tempo;
-    for(int i: adj_vertices[vertice_atual]){
+    for(int i 0: adj_vertices[vertice_atual]){
         if((visualizacao[vetor_arestas[i].vertice_destino < tempo]) &&
             (vetor_arestas[i].capacidade - vetor_arestas[i].fluxo) > 0){
                 if(int a = dfs(vetor_arestas[i].vertice_destino, t,
@@ -82,12 +84,13 @@ int fluxo_a_ser_aumentado(int tempo, int s, int t, int *visualizacao,
     return fluxo;
 }
 
+*/
 
 int main() {
 
     int qnt_vertice = 0;
     int qnt_aresta = 0;
-    int *c = new int[qnt_aresta]();
+
 
     //lê dados de entrada
     ifstream file("entrada.txt");
@@ -95,6 +98,7 @@ int main() {
     cout << qnt_vertice << endl;
     file >> qnt_aresta;
     cout << qnt_aresta<< endl;
+    int *c = new int[qnt_aresta];
     for(int j = 0; j < qnt_aresta; j++){
         file >> c[j];
     }
@@ -103,7 +107,7 @@ int main() {
     cout << endl;
 
     //cria a matriz de adjacência
-    int **N = new int*[qnt_vertice]();    // cria primeiro as linhas
+    int **N = new int*[qnt_vertice];    // cria primeiro as linhas
     for(int i = 0; i < qnt_vertice; i++)
         N[i] = new int[qnt_aresta];      //cria as colunas
 
@@ -127,7 +131,7 @@ int main() {
     */
 
     // cria vetor de arestas
-    struct TipoAresta vetor_arestas[2*qnt_aresta]; // guarda a aresta em x e sua reversa em x+1
+    /*TipoAresta vetor_arestas[2*qnt_aresta]; // guarda a aresta em x e sua reversa em x+1
 
     //cada vertice tem uma lista de adjacencia
     vector <int> adj_vertices[2*qnt_vertice]; // guarda o inteiro que mosta a posição no vetor_aresta
@@ -150,7 +154,7 @@ int main() {
     int tempo = 1;
     int fluxo = fluxo_a_ser_aumentado(tempo, s, t, visualizacao, vetor_arestas, adj_vertices);
 
-
+*/
     return 0;
 }
 
