@@ -1,7 +1,7 @@
 # depslib dependency file v1.0
-1498501006 source:/home/fernanda/Documentos/UFMG/2017-1/PO/Ford-Fulkerson/main.cpp
+1498712024 source:/home/fernanda/Documentos/UFMG/2017-1/PO/Ford-Fulkerson/main.cpp
 	<iostream>
 	<iostream>
 	<fstream>
-	<vector>
+	<queue>
 

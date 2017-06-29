@@ -1,18 +1,10 @@
 #include <iostream>
 #include <iostream>
 #include <fstream>
-#include<vector>
+#include<queue>
 
 
 using namespace std;
-/*
-
-struct TipoAresta{
-    int vertice_destino;
-    int fluxo;
-    int capacidade;
-};
-
 
 void imprime_vetor(int tamanho, int *vetor){
     for(int i = 0; i < tamanho; i++){
@@ -29,62 +21,70 @@ void imprime_matriz(int linha, int coluna, int **matriz){
 	cout << endl;
 }
 
-//adiciona uma aresta no vetor de aresta
-void adiciona_aresta(int a, int b, int capacidade, int capacidade_reversa,
-    int num_arestas_adicionadas, TipoAresta vetor_arestas[], vector<int> adj_vertices[]){
+int busca_caminho(int qnt_vertice, int *caminho, int *visitado, queue<int> &fila,
+    int s, int t, int **residual){
 
-    vetor_arestas[num_arestas_adicionadas].vertice_destino = b;
-    cout<<"destino = "<<vetor_arestas[num_arestas_adicionadas].vertice_destino<<endl;
-    vetor_arestas[num_arestas_adicionadas].fluxo = 0;
-    cout<<"fluxo = "<<vetor_arestas[num_arestas_adicionadas].fluxo<<endl;
-    vetor_arestas[num_arestas_adicionadas].capacidade = capacidade;
-    cout<<"capacidade = "<<vetor_arestas[num_arestas_adicionadas].capacidade<<endl;
-    adj_vertices[a].push_back(num_arestas_adicionadas++);
-   // cout<<adj_vertices[a];
-     //###########################COMO PASSAR UM VECTOR POR PARÂMETRO E COMO IMPRIMIR ELE
+    bool existe_caminho = false;
 
-    //add aresta reversa
-    vetor_arestas[num_arestas_adicionadas].vertice_destino = a;
-    vetor_arestas[num_arestas_adicionadas].fluxo = 0;
-    vetor_arestas[num_arestas_adicionadas].capacidade = capacidade_reversa;
-    adj_vertices[b].push_back(num_arestas_adicionadas++);
-}
+    for(int i = 0; i < qnt_vertice; i++){
+        caminho[i] = -1;
+        visitado[i] = 0;
+    }
+    fila.push(s);
+    visitado[s] = 1;
 
-int dfs(int vertice_atual, int t, int fluxo_atual, int *visualizacao, int tempo,
-    TipoAresta vetor_arestas[], vector<int> adj_vertices[]){
-
-    if(vertice_atual == t) return fluxo_atual;
-    visualizacao[vertice_atual] = tempo;
-    for(int i 0: adj_vertices[vertice_atual]){
-        if((visualizacao[vetor_arestas[i].vertice_destino < tempo]) &&
-            (vetor_arestas[i].capacidade - vetor_arestas[i].fluxo) > 0){
-                if(int a = dfs(vetor_arestas[i].vertice_destino, t,
-                    min(fluxo_atual, vetor_arestas[i].capacidade - vetor_arestas[i].fluxo),
-                     visualizacao, tempo, vetor_arestas, adj_vertices)){
-                        vetor_arestas[i].fluxo += a;
-                        vetor_arestas[i^1].fluxo -= a;
-                        return a;
-                    }
+    while(!fila.empty()){
+        int vertice = fila.front();
+        fila.pop();
+        for(int i = 0; i < qnt_vertice; i++){
+            if(residual[vertice][i] > 0 && (!visitado[i])){
+                caminho[i] = vertice;
+                fila.push(i);
+                visitado[i] = 1;
+            }
         }
+
     }
-    return 0;
+    if(visitado[t])
+        existe_caminho = true;
+    return existe_caminho;
+}
+
+int retorna_fluxo_max(int qnt_vertice, int **residual, int *caminho,
+    int t, int s, int *visitado, queue<int> &fila){
+    int fluxo_max = 0;
+
+
+    while(busca_caminho(qnt_vertice, caminho, visitado, fila, s, t, residual)){
+        int fluxo = 999999999;
+        int v = 0;
+
+        for(int i = t; i != s; i = caminho[i]){
+            v = caminho[i];
+            if(residual[v][i] < fluxo){
+                //fluxo = min(fluxo, residual[v][i])
+                fluxo = residual[v][i];
+            }
+        }
+
+        for(int i = t; i != s; i = caminho[i]){
+            v = caminho[i];
+            residual[v][i] -= fluxo;
+            residual[i][v] += fluxo;
+        }
+        for(int i = 0; i < qnt_vertice; i++){
+            for(int j = 0; j< qnt_vertice; j++){
+                cout<<residual[i][j] << " ";
+            }
+            cout <<endl;
+        }
+        cout<< endl;
+        fluxo_max += fluxo;
+    }
+    return fluxo_max;
 }
 
 
-//retorna quanto de fluxo foi possível aumentar
-int fluxo_a_ser_aumentado(int tempo, int s, int t, int *visualizacao,
-    TipoAresta vetor_arestas[], vector<int> adj_vertices[]){
-
-    int fluxo = 0;
-    //enquanto tiver caminho aumentador, aumenta o fluxo
-    while(int a = dfs(s, t, 9999999999, visualizacao, tempo, vetor_arestas, adj_vertices)){  //recebe vertice inicial , destino, fluxo passado até o momento
-        fluxo += a;
-        tempo++;
-    }
-    return fluxo;
-}
-
-*/
 
 int main() {
 
@@ -93,20 +93,18 @@ int main() {
 
 
     //lê dados de entrada
-    ifstream file("entrada.txt");
+    ifstream file("input.txt");
     file >> qnt_vertice;
     cout << qnt_vertice << endl;
     file >> qnt_aresta;
     cout << qnt_aresta<< endl;
-    int *c = new int[qnt_aresta];
+    int *custo = new int[qnt_aresta];
     for(int j = 0; j < qnt_aresta; j++){
-        file >> c[j];
+        file >> custo[j];
     }
-    //imprime_vetor(qnt_aresta, c);
-    cout << endl;
-    cout << endl;
-
-    //cria a matriz de adjacência
+    //imprime_vetor(qnt_aresta, custo);
+    cout <<endl;
+    //cria a matriz de incidência
     int **N = new int*[qnt_vertice];    // cria primeiro as linhas
     for(int i = 0; i < qnt_vertice; i++)
         N[i] = new int[qnt_aresta];      //cria as colunas
@@ -116,45 +114,46 @@ int main() {
 		for (int j = 0; j < qnt_aresta; j++)
 			file >> N[i][j];
 	}
-    int s = 0;
-    int t = qnt_vertice-1;
+	cout << endl;
 	//imprime_matriz(qnt_vertice, qnt_aresta, N);
-	//cout << endl;
 
-	/*struct Aresta aresta;
-    Aresta vetor_de_aresta[qnt_aresta]; //cria uma lista contendo cada uma das aresta
+	int **adjacencia = new int*[qnt_vertice];
+	for(int i = 0; i < qnt_vertice; i++){
+        adjacencia[i] = new int[qnt_vertice];
+	}
 
-    TipoAresta **lista_arestas = new TipoAresta*[qnt_aresta]();
-    for(int i = 0; i < qnt_aresta; i++)
-        lista_arestas[i] = new TipoAresta[qnt_aresta];
-
-    */
-
-    // cria vetor de arestas
-    /*TipoAresta vetor_arestas[2*qnt_aresta]; // guarda a aresta em x e sua reversa em x+1
-
-    //cada vertice tem uma lista de adjacencia
-    vector <int> adj_vertices[2*qnt_vertice]; // guarda o inteiro que mosta a posição no vetor_aresta
-    int *visualizacao = new int[qnt_aresta](); //visualizaçãod dos vertices
-
-    int num_arestas_adicionadas = 0;
-    int origem = 0;
-    int destino = 0;
-    int capacidade = 0;
-    for(int j = 0; j < qnt_aresta; j++){
-        for(int i = 0; i < qnt_vertice; i++){
-            if(N[i][j] == 1){
-                origem = j;
-                destino = i;
-                capacidade = c[j];
-                adiciona_aresta(origem, destino, capacidade, 0, num_arestas_adicionadas, vetor_arestas, adj_vertices);
+	for(int i = 0; i < qnt_vertice-1; i++){
+        for(int j = 0; j < qnt_aresta; j++){
+            if(N[i][j] == -1){
+                for(int k = 0; k < qnt_vertice; k++){
+                    if(N[k][j] == 1){
+                        adjacencia[i][k] = custo[j];
+                    }
+                }
             }
         }
-    }
-    int tempo = 1;
-    int fluxo = fluxo_a_ser_aumentado(tempo, s, t, visualizacao, vetor_arestas, adj_vertices);
+	}
+	cout << endl;
+	//imprime_matriz(qnt_vertice, qnt_vertice, adjacencia);
 
-*/
+    int s = 0;              //origem
+    int t = qnt_vertice-1;  //destino
+    queue <int> fila;
+    int *visitado = new int[qnt_vertice];
+    int *caminho = new int[qnt_vertice];
+    int **residual = new int*[qnt_vertice];
+    for(int i = 0; i < qnt_vertice; i++)
+        residual[i] = new int[qnt_vertice];
+
+    for(int i = 0; i < qnt_vertice; i++){
+        for(int j = 0; j < qnt_vertice; j++)
+            residual[i][j] = adjacencia[i][j];
+    }
+    cout << endl;
+    //imprime_matriz(qnt_vertice, qnt_vertice, residual);
+    int fluxo_maximo = retorna_fluxo_max(qnt_vertice, residual, caminho, t, s, visitado, fila);
+    cout << "fluxo maximo: "<< fluxo_maximo <<endl;
+
     return 0;
 }
 
