@@ -59,7 +59,7 @@ void marca_caminho(int qnt_vertice, int qnt_aresta, int *caminho_aresta,
 }
 
 int busca_caminho(int qnt_vertice, int qnt_aresta, int *caminho, int *visitado, queue<int> &fila,
-    int s, int t, int **residual, int *caminho_aresta, int **N, int *novo_custo, int *custo){
+    int s, int t, int **residual, int *caminho_aresta, int **N, int *novo_custo, int *custo, bool corte){
 
     bool existe_caminho = false;
 
@@ -82,8 +82,13 @@ int busca_caminho(int qnt_vertice, int qnt_aresta, int *caminho, int *visitado, 
         }
 
     }
+
     if(visitado[t])
         existe_caminho = true;
+    else{
+    }
+    cout<<endl;
+
     marca_caminho(qnt_vertice, qnt_aresta, caminho_aresta, caminho, N, novo_custo, residual);
     cout<<"]"<<endl;
     cout<<"[";
@@ -95,11 +100,11 @@ int busca_caminho(int qnt_vertice, int qnt_aresta, int *caminho, int *visitado, 
 }
 
 int retorna_fluxo_max(int qnt_vertice, int qnt_aresta, int **residual, int *caminho,
-    int t, int s, int *visitado, queue<int> &fila, int *caminho_aresta, int **N, int *novo_custo, int *custo){
+    int t, int s, int *visitado, queue<int> &fila, int *caminho_aresta, int **N, int *novo_custo, int *custo, bool corte){
 
     int fluxo_max = 0;
 
-    while(busca_caminho(qnt_vertice, qnt_aresta, caminho, visitado, fila, s, t, residual, caminho_aresta, N, novo_custo, custo)){
+    while(busca_caminho(qnt_vertice, qnt_aresta, caminho, visitado, fila, s, t, residual, caminho_aresta, N, novo_custo, custo, corte)){
         int fluxo = 999999999;
         int v = 0;
 
@@ -131,7 +136,7 @@ int main() {
 
 
     //lê dados de entrada
-    ifstream file("input.txt");
+    ifstream file("entrada.txt");
     file >> qnt_vertice;
     file >> qnt_aresta;
     int *custo = new int[qnt_aresta];
@@ -156,7 +161,7 @@ int main() {
         adjacencia[i] = new int[qnt_vertice];
 	}
 
-	for(int i = 0; i < qnt_vertice-1; i++){
+	for(int i = 0; i < qnt_vertice; i++){
         for(int j = 0; j < qnt_aresta; j++){
             if(N[i][j] == -1){
                 for(int k = 0; k < qnt_vertice; k++){
@@ -182,25 +187,51 @@ int main() {
         for(int j = 0; j < qnt_vertice; j++)
             residual[i][j] = adjacencia[i][j];
     }
-
+     bool corte = false;
     int *caminho_aresta = new int[qnt_aresta]();
     int *novo_custo = new int[qnt_aresta]();
     int fluxo_maximo = retorna_fluxo_max(qnt_vertice, qnt_aresta, residual,
-    caminho, t, s, visitado, fila, caminho_aresta, N, novo_custo, custo);
+    caminho, t, s, visitado, fila, caminho_aresta, N, novo_custo, custo, corte);
     cout<<endl;
     cout << "fluxo maximo: "<< fluxo_maximo <<endl;
     int *corte_minimo = new int[qnt_aresta]();
-    for(int i= 0; i < qnt_aresta; i++){
-        if(custo[i] == novo_custo[i]){
-            corte_minimo[i] = 1;
+    int *conjuntoA = new int[qnt_vertice];
+    int *conjuntoB = new int[qnt_vertice];
+
+    int k = 0;
+    for(int i= 0; i < qnt_vertice; i++){
+        if(visitado[i] == 1){
+            conjuntoA[k] = i;
+             conjuntoB[i] = -1;
+        }
+        else{
+            conjuntoB[k] = i;
+            conjuntoA[i] = -1;
+        }
+        k++;
+    }
+    for(int i = 0; i < qnt_vertice; i++){
+        if(conjuntoA[i] != -1){
+            for(int j = 0; j < qnt_aresta; j++){
+                if(N[conjuntoA[i]][j] == -1){
+                    for(int x = 0; x < qnt_vertice; x++){
+                        if(N[x][j] == 1){
+                            if(x == conjuntoA[x])
+                                continue;
+                            else
+                                corte_minimo[j] = 1;
+                        }
+                    }
+                }
+            }
         }
     }
-    cout<<endl;
-    cout<<"[";
-    for(int j = 0; j < qnt_aresta; j++){
-        cout<< corte_minimo[j] << " ";
-    }
-    cout<<"]"<<endl;
+	cout<<"Corte mínimo: [" ;
+	for(int j = 0; j < qnt_aresta; j++){
+        cout << corte_minimo[j] << " ";
+	}
+	cout<<"]";
+
 
     return 0;
 }
